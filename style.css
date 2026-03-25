@@ -1,0 +1,54 @@
+body {
+    margin: 0;
+    background-color: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: 'Courier New', Courier, monospace;
+    color: white;
+}
+
+#game-container {
+    position: relative;
+    border: 4px solid #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 2px 2px #000;
+    pointer-events: none;
+}
+
+canvas {
+    background: linear-gradient(#5c94fc, #92a1fe); /* Classic Mario Sky */
+    display: block;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#overlay h1 {
+    font-size: 50px;
+    margin-bottom: 10px;
+    color: #ff4444;
+}
