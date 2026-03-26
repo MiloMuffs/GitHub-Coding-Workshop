@@ -40,7 +40,7 @@ const levels = [
   [ // Level 1
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,0,4],
+    [0,0,0,0,0,0,3,0,0,0,0,0,0,0,3,0,0,0,1,4],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
   [ // Level 2
@@ -50,25 +50,18 @@ const levels = [
     [1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1]
   ],
   [ // Level 3
+    [0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,1,1,0,0,0,1,2,2,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,0,0,3,0,4],
-    [1,1,1,0,0,0,0,0,0,,0,0,1,1,0,2,0,1,1,1,1]
-  ],[ // Level 4
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,2,2,0,0,0,3,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,2,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0]
-    [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,0,0,0,4],
-    [1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1]
-  ],[ // Level 5
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,2,2,0,0,0,2,2,0,0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,0,0,0,4],
-    [1,1,1,0,0,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1]
+    [0,0,0,0,2,1,1,1,2,0,0,0,0,0,0,0,0,0,0,4],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+    [0,0,0,0,0,3,0,0,0,3,0,0,0,0,0,3,0,1,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
+  // TODO: Add Level 3, 4, and 5 here...
 ];
 
-let player = { x: 50, y: 100, w: 35, h: 45, vX: 0, vY: 0, speed: 5, jump: 12, grounded: false, dead: false };
+let player = { x: 50, y: 100, w: 35, h: 45, vX: 0, vY: 0, speed: 5, jump: 13, grounded: false, dead: false };
 let platforms = [], enemies = [], goals = [];
 const keys = {};
 
@@ -89,13 +82,13 @@ function loadLevel(idx) {
    * CHALLENGE 2: UI SYNCHRONIZATION
    * TODO: Update 'level-num' and 'score-num' in the HTML
    */
-  document.getElementById('level-num').innerText = idx+1;
-  document.getElementById('score-num').innerText = score;
+  document.getElementById('level-num').innerText = idx + 1;
+  document.getElementById('score-num').innerText = score ;  
 
   const map = levels[idx];
   map.forEach((row, r) => {
     row.forEach((type, c) => {
-      let x = c * tileSize, y = r * tileSize + 240;
+      let x = c * tileSize, y = r * tileSize + (canvas.height - (map.length * tileSize));
       if (type === 1) platforms.push({ x, y, w: tileSize, h: tileSize, type: 'ground' });
       if (type === 2) platforms.push({ x, y, w: tileSize, h: tileSize, type: 'item' });
       if (type === 3) enemies.push({ x, y: y+10, w: 30, h: 30, speed: -1.5, alive: true });
@@ -127,9 +120,10 @@ function update() {
    */
   if (player.y > canvas.height) {
     // TODO: Set player.dead and show overlay
+    player . dead = true ;
+    document . getElementById ( 'overlay') . style . display = 'flex';
   }
-
-  platforms.forEach((p, i) => {
+platforms.forEach((p, i) => {
     if (getCollision(player, p)) {
       
       /**
@@ -149,25 +143,34 @@ function update() {
       // --- PART B: THE HEAD-BUTT (Your Turn!) ---
       if (player.vY < 0 && player.y > p.y) {
         // TODO: Bounce down (vY = 2) and delete [?] blocks (splice)
+        player.vY = 2;
+        if (p.type === 'item') platforms.splice(i, 1);
+        score +=2; 
+        document.getElementById('score-num').innerText = score ;
+      
       }
       
       // --- PART C: GHOST WALLS (Your Turn!) ---
       if (player.vX > 0 && player.x + player.w < p.x + 10 
-          && player.y + player.h > p.y + 5) { // Feet buffer
+          && player.y + player.h > p.y + 5 && player.y < p.y + tileSize - 15) { // Feet buffer
         // TODO: Add the 'Ghost Head' check and stop Yoshi (vX = 0)
-      } 
+        player.x = p.x - player.w;
+        player.vX = 0;
+      }
+
       else if (player.vX < 0 && player.x > p.x + p.w - 10 
-          && player.y + player.h > p.y + 5) {
+          && player.y + player.h > p.y + 5 && player.y < p.y + tileSize - 15) {
         // TODO: Add the 'Ghost Head' check and stop Yoshi (vX = 0)
+        player.x = p.x + player.w;
+        player.vX = 0;
       }
     }
   });
-
   if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && player.grounded) {
     player.vY = -player.jump;
   }
 
-  enemies.forEach(en => {
+enemies.forEach(en => {
     if (!en.alive) return;
     en.x += en.speed;
     if (en.x < 0 || en.x > canvas.width - en.w) en.speed *= -1;
@@ -177,6 +180,15 @@ function update() {
        * CHALLENGE 5: STOMP OR DIE
        */
       // TODO: Logic for falling on top of enemy vs hitting from the side
+      if ( player . vY > 0 && ( player . y + player . h ) < ( en . y + 20) ) {
+        en . alive = false ;
+        player . vY = -10;
+        score += 100;
+        document.getElementById('score-num').innerText = score;
+      } else {
+        player.dead = true;
+        document.getElementById('overlay').style.display = 'flex';
+      }
     }
   });
 
