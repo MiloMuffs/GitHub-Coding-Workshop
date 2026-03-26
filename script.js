@@ -197,6 +197,10 @@ enemies.forEach(en => {
    */
   goals.forEach(g => {
     // TODO: Collision check to advance levels
+    if (getCollision (player , g)){
+      currentLevel ++;
+      loadLevel (currentLevel);
+    }
   });
 
   draw();
